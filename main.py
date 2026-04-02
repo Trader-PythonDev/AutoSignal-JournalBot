@@ -3,17 +3,23 @@ import requests
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+import os
+import json
 
 app = FastAPI()
 
 # --- Configurations ---
-DISCORD_VIP_WEBHOOK = "https://discord.com/api/webhooks/1489262275872161952/HGSWn3RkQuw0gmxL9ujqcstv2XuHA9kcqlRK02hwzAduFGHccR6fBmrMGKKOyttreu6U"
-TELEGRAM_BOT_TOKEN = "8633861460:AAFNzDkJmULM6B9AgR3EDO9CQKjAdYVAHzg"
-TELEGRAM_VIP_CHAT_ID = "-1003829300597"
+DISCORD_VIP_WEBHOOK = os.environ.get("DISCORD_VIP_WEBHOOK")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_VIP_CHAT_ID = os.environ.get("TELEGRAM_VIP_CHAT_ID")
 
 # --- Google Sheets Setup ---
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
+google_creds_json = os.environ.get("GOOGLE_CREDENTIALS")
+if google_creds_json:
+    creds = Credentials.from_service_account_info(json.loads(google_creds_json), scopes=scopes)
+else:
+    creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
 client = gspread.authorize(creds)
 sheet = client.open("Trade Journal").sheet1
 
